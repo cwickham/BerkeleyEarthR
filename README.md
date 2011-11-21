@@ -66,7 +66,7 @@ Where are the sites? Let's plot their locations:
     library(ggplot2)
     qplot(Longitude, Latitude, data = sites, size = I(0.5), alpha = I(0.5)) 
 
-![plot](../images/locations.png)
+![plot](http://github.com/cwickham/locations.png)
 
 The resulting plot highlights the incredibly high density of stations in USA.  
 You will have seen this warning message:
@@ -112,7 +112,7 @@ Let's join the temperature records up with their site data and plot their temper
     qplot(Date, Temperature, data = temps_cities, geom = "line") + 
       facet_wrap( ~ StationName, ncol = 1) + geom_smooth()
       
-![plot](../images/cities.png)
+![plot](http://github.com/cwickham/cities.png)
 
 I'm surprised that Auckland looks warmer than Berkeley!  I'd want to investigate further where these stations are located, a station at Berkeley Marina would give a very different picture to one up at the LBL lab. Looks like I'm in for my coldest winter yet... 
 
@@ -123,14 +123,14 @@ Some things to note:
 * You might have noticed earlier (`subset(sites, StationID %in% cities_ids)`) that the Berkeley and Corvallis sites have relocations.  I should also break the data at these times. 
 
 ### Site by site summary
-I want a rough summary of all of the sites. The following function takes a single site record and calculates a simple average temperature, a measure of the variability of temperature, the number of months I have data, and the first and last year I have data for the site.  I use the median and mean absolute deviation (mad) as measure of center and spread because I haven't done any cleaning or filtering for known or suspected bad values and I don't want the occasional outlying value to influence the measures too much. 
+I want a rough summary of all of the sites. The following function takes a single site record and calculates a simple average temperature, a measure of the variability of temperature, the number of months I have data, and the first and last year I have data for the site.  I use the median and median absolute deviation (mad) as measure of center and spread because I haven't done any cleaning or filtering for known or suspected bad values and I don't want the occasional outlying value to influence the measures too much. 
 
     summarise_temp <- function(site_record){
       avg_temp = median(site_record[, "Temperature"], na.rm = TRUE)
       spread_temp = mad(site_record[, "Temperature"], na.rm = TRUE)
       n_months = length(unique(site_record[, "Date"]))
       first_year = floor(min(site_record[, "Date"]))
-      last_year = floor(matemps(site_record[, "Date"]))  
+      last_year = floor(max(site_record[, "Date"]))  
       data.frame(avg_temp, spread_temp, n_months, first_year, last_year)
     }
 
@@ -146,13 +146,17 @@ For each index we pull the records for a single site and apply the `summarise_te
     site_summaries$StationID <- rownames(site_summaries)
 This summary is most useful when we combine it with the site information:
 
-    site_summaries <- join(site_summaries, sites, "inner")
+    site_summaries <- join(site_summaries, sites, type = "inner")
+
 Then we can plot average temperature by location (for sites with atleast 5 years of monthly measurements):
+    
     qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
       alpha = I(0.5), colour = avg_temp) 
+![plot](http://github.com/cwickham/avg_temp.png)
 
 Or temperature variability by location:
 
     qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
       alpha = I(0.5), colour = spread_temp) 
+![plot](http://github.com/cwickham/var_temp.png)
 
