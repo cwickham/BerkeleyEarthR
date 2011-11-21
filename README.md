@@ -24,7 +24,7 @@ You will also need the bigmemory, bigtabulate, ggplot2 and plyr packages.  You c
 
     install.packages(c("bigmemory", "bigtabulate", "ggplot2", "plyr"))
 
-This document assumes you have downloaded this README and the accompanying code (i.e. Downloads -> Download as zip on [github](http://github.com/cwickham/BerkeleyEarthR)) and extracted them somewhere you like to work (i.e.  ~/Documents/BerkeleyEarthR).  Once you have done this the  folder will contain three directories: code, data and binaries. The directories data and binaries will be empty.  Our first step is to populate "data" with the text formatted data from BerkeleyEarth.
+This document assumes you have downloaded this README and the accompanying code (i.e. Downloads -> Download as zip on [github](/raw/master/BerkeleyEarthR)) and extracted them somewhere you like to work (i.e.  ~/Documents/BerkeleyEarthR).  Once you have done this the  folder will contain three directories: code, data and binaries. The directories data and binaries will be empty.  Our first step is to populate "data" with the text formatted data from BerkeleyEarth.
 
 ## Download the data
 
@@ -66,7 +66,7 @@ Where are the sites? Let's plot their locations:
     library(ggplot2)
     qplot(Longitude, Latitude, data = sites, size = I(0.5), alpha = I(0.5)) 
 
-![plot](http://github.com/cwickham/locations.png)
+![plot](/raw/master/locations.png)
 
 The resulting plot highlights the incredibly high density of stations in USA.  
 You will have seen this warning message:
@@ -112,7 +112,7 @@ Let's join the temperature records up with their site data and plot their temper
     qplot(Date, Temperature, data = temps_cities, geom = "line") + 
       facet_wrap( ~ StationName, ncol = 1) + geom_smooth()
       
-![plot](http://github.com/cwickham/cities.png)
+![plot](/raw/master/cities.png)
 
 I'm surprised that Auckland looks warmer than Berkeley!  I'd want to investigate further where these stations are located, a station at Berkeley Marina would give a very different picture to one up at the LBL lab. Looks like I'm in for my coldest winter yet... 
 
@@ -152,11 +152,11 @@ Then we can plot average temperature by location (for sites with atleast 5 years
     
     qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
       alpha = I(0.5), colour = avg_temp) 
-![plot](http://github.com/cwickham/avg_temp.png)
+![plot](/raw/master/avg_temp.png)
 
 Or temperature variability by location:
 
     qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
       alpha = I(0.5), colour = spread_temp) 
-![plot](http://github.com/cwickham/var_temp.png)
+![plot](/raw/master/var_temp.png)
 
