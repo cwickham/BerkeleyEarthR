@@ -44,12 +44,13 @@ site_summaries <- do.call(rbind, lapply(site_indices,
 site_summaries$StationID <- rownames(site_summaries)
 
 # merge summary and site location information
-site_summaries <- join(site_summaries, sites, "inner")
+site_summaries <- join(site_summaries, sites, type = "inner")
 
 # plot the avg_temp at sites with atleast 60 months
 qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
   alpha = I(0.5), colour = avg_temp) 
-ggsave("../images/cities.png", width = 10, height = 10, dpi = 300)
+ggsave("../images/avg_temp.png", width = 10, height = 5, dpi = 300)
 
 qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
   alpha = I(0.5), colour = spread_temp) 
+ggsave("../images/var_temp.png", width = 10, height = 5, dpi = 300)
