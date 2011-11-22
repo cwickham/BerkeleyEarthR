@@ -151,20 +151,29 @@ For each index we pull the records for a single site and apply the `summarise_te
     site_summaries <- rbind.fill(lapply(site_indices,
       function(i) summarise_temp(temps[i, c('Date','Temperature'),
       drop=FALSE])))
-    site_summaries$StationID <- rownames(site_summaries)
+    site_summaries$StationID <- names(site_indices)
+
 This summary is most useful when we combine it with the site information:
 
     site_summaries <- join(site_summaries, sites, type = "inner")
 
-Then we can plot average temperature by location (for sites with atleast 5 years of monthly measurements):
-    
-    qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
+Then we can plot average temperature by location (for sites with atleast 5 years of monthly measurements and ignoring a couple of really weird sites):
+
+    # weird IDs - investigate if you are interested
+    bad_ids <- c(135184, 116336, 144093)
+    # plot the avg_temp at sites with atleast 60 months
+    qplot(Longitude, Latitude, 
+      data = subset(site_summaries, !(StationID %in% bad_ids) & n_months > 60), 
       alpha = I(0.5), colour = avg_temp) 
 ![plot](http://github.com/cwickham/BerkeleyEarthR/raw/master/images/avg_temp.png)
 
 Or temperature variability by location:
 
-    qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
-      alpha = I(0.5), colour = spread_temp) 
+    qplot(Longitude, Latitude, 
+      data = subset(site_summaries, !(StationID %in% bad_ids) & n_months > 60), 
+      alpha = I(0.5), colour = spread_temp) +
+      scale_colour_gradient(trans = "log10", 
+        breaks = c(0.3, 1, 3, 10, 30), labels = c(0.3, 1, 3, 10, 30)) 
+
 ![plot](http://github.com/cwickham/BerkeleyEarthR/raw/master/images/var_temp.png)
 

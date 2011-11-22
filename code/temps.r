@@ -41,16 +41,23 @@ summarise_temp <- function(site_record){
 
 site_summaries <- rbind.fill(lapply(site_indices,
   function(i) summarise_temp(temps[i, c('Date','Temperature'), drop=FALSE])))
-site_summaries$StationID <- rownames(site_summaries)
+site_summaries$StationID <- names(site_indices)
 
 # merge summary and site location information
 site_summaries <- join(site_summaries, sites, type = "inner")
 
+# weird IDs - investigate if you are interested
+bad_ids <- c(135184, 116336, 144093)
+
 # plot the avg_temp at sites with atleast 60 months
-qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
+qplot(Longitude, Latitude, 
+  data = subset(site_summaries, !(StationID %in% bad_ids) & n_months > 60), 
   alpha = I(0.5), colour = avg_temp) 
 ggsave("../images/avg_temp.png", width = 10, height = 5, dpi = 300)
 
-qplot(Longitude, Latitude, data = subset(site_summaries, n_months > 60), 
-  alpha = I(0.5), colour = spread_temp) 
+qplot(Longitude, Latitude, 
+  data = subset(site_summaries, !(StationID %in% bad_ids) & n_months > 60), 
+  alpha = I(0.5), colour = spread_temp) +
+  scale_colour_gradient(trans = "log10", 
+    breaks = c(0.3, 1, 3, 10, 30), labels = c(0.3, 1, 3, 10, 30)) 
 ggsave("../images/var_temp.png", width = 10, height = 5, dpi = 300)
