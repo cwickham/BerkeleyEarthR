@@ -121,8 +121,6 @@ Let's join the temperature records up with their site data and plot their temper
       
 ![plot](http://github.com/cwickham/BerkeleyEarthR/raw/master/images/cities.png)
 
-I'm surprised that Auckland looks warmer than Berkeley!  I'd want to investigate further where these stations are located, a station at Berkeley Marina would give a very different picture to one up at the LBL lab. Looks like I'm in for my coldest winter yet... 
-
 Some things to note:
 
 * Beware the data gaps! Here, subsequent time points are joined with a line, one should break the lines when a month is missing data.  
