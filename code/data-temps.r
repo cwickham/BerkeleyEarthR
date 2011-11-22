@@ -17,3 +17,4 @@ if (!file.exists(paste(binary.path, "tavg.bin", sep = ""))){
   temps <- attach.big.matrix(dget(paste(binary.path, "tavg.desc", sep = "")), 
     path = binary.path)
 }
+

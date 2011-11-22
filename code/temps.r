@@ -39,7 +39,7 @@ summarise_temp <- function(site_record){
   data.frame(avg_temp, spread_temp, n_months, first_year, last_year)
 }
 
-site_summaries <- do.call(rbind, lapply(site_indices,
+site_summaries <- rbind.fill(lapply(site_indices,
   function(i) summarise_temp(temps[i, c('Date','Temperature'), drop=FALSE])))
 site_summaries$StationID <- rownames(site_summaries)
 

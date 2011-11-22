@@ -1,3 +1,20 @@
+
+## Introduction
+
+The code provided here will help you read in the Berkeley Earth text data into R and perform some simple exploration.  It is not designed to reproduce the Berkeley Earth averaging procedure, or to do any meaningful climate analysis.  It's sole goal is to reduce some of the initial burden for people interested in using the Berkeley Earth dataset in R.  This comes in the form of two pieces of R code `code/data-sites.r` and `code/data-temps.r` which read the raw text files `site_detail.txt` and `data.txt` respectively. 
+
+The complete set of station records is large, in the monthly TMAX data there are more than 14 million records.  With a modern machine it is possible to store it entirely in memory, however performing simple subsetting and summary calculations soon become too burdensome.  For that reason here I will use the [bigmemory](http://www.bigmemory.org/) to store the temperature records as a `big.matrix`, which reduces the memory burden substantially.  There is some initial overhead in creating the big.matrix (about 10 minutes on my laptop) but this is worthwhile in the long run.  
+
+This readme will guide you through the steps required to load the data into R and perform some basic actions.  The R code in this readme is also in the file `code/temps.r`.  
+
+Currently this has been tested on a MacBook Pro, 2.66 GHz Intel Core 2 Duo, 8GB RAM, running R version 2.13.0 64-bit.  
+
+## The data
+
+Currently BerkeleyEarth has released a merged data set of monthly TAVG temperature for 39,028 temperature stations.  Please read README.data in the text data. In particular note that "This release is not recommended for third party research use as the known bugs may lead to erroneous conclusions due to incomplete understanding of the dataset's current limitations."  This code will updated when the second generation is released.
+
+The complete unzipped data is 21Gb.  Most of this is due to the source and flags files. The instructions here do not utilize these files.  
+
 ## QuickStart
 If you are pretty familiar with R and just want to get playing:
 
@@ -6,19 +23,9 @@ If you are pretty familiar with R and just want to get playing:
 
 If that is too brief for you, read on.
 
-## Introduction
-
-The code provided here will help you read in the Berkeley Earth text data into R and perform some simple exploration.  It is not designed to reproduce the Berkeley Earth averaging procedure, or to do any meaningful climate analysis.  It's sole goal is to reduce some of the initial burden for people interested in using the Berkeley Earth dataset in R.  This comes in the form of two pieces of R code `code/data-sites.r` and `code/data-temps.r` which read the raw text files `site_detail.txt` and `data.txt` respectively. 
-
-The complete set of station records is large.  With a modern machine it is possible to store it entirely in memory, however performing simple subsetting and summary calculations soon become too burdensome.  For that reason here I will use the [bigmemory](http://www.bigmemory.org/) to store the temperature records as a `big.matrix`, which reduces the memory burden substantially.  There is some initial overhead in creating the big.matrix (about 10 minutes on my laptop) but this is worthwhile in the long run.
-
-This readme will guide you through the steps required to load the data into R and perform some basic actions.  The R code in this readme is also in the file `code/temps.r`.  
-
-Currently this has been tested on a MacBook Pro, 2.66 GHz Intel Core 2 Duo, 8GB RAM, running R version 2.13.0 64-bit.
-
 ## Preliminaries
 
-Make sure you have a recent version of R.  If it is less than 2.12 I suggest updating.  You can download the latest version at [http://cran.at.r-project.org/](http://cran.at.r-project.org/).  
+Make sure you have a recent version of R.  If it is less than 2.13 I suggest updating.  You can download the latest version at [http://cran.at.r-project.org/](http://cran.at.r-project.org/).  
 
 You will also need the bigmemory, bigtabulate, ggplot2 and plyr packages.  You can get them in R by running:
 
@@ -28,11 +35,11 @@ This document assumes you have downloaded this README and the accompanying code 
 
 ## Download the data
 
-The text dataset is available from [Berkeley Earth](http://berkeleyearth.org/data.php).  Download it, unzip it and move the files into the data directory.  
+The text dataset is available from [Berkeley Earth](http://berkeleyearth.org/data.php).  Download the "Preliminary text dataset", move the file into the data directory and unzip it (you'll need 21Gb of space).
 
 The contents of the BerkeleyEarthR directory should now look like:
 
-    readme.html	
+    README.md	
 
     ./binaries:
     
@@ -80,7 +87,7 @@ This warning indicates 651 sites were not plotted because some or all of their l
 Let's read in the temperature records.
 
     source("data-temps.r")
-This may take awhile to complete the first time you run it.  It populates the binaries folder with a binary file-backing for the data so that subsequent R sessions can attach the data instantly.
+This may take awhile to complete the first time you run it.  It populates the binaries folder with a binary file-backing for the data (`tavg.bin`, ~ 800Mb) so that subsequent R sessions can attach the data instantly.  
 
     head(temps)
     nrow(temps)
@@ -100,7 +107,7 @@ I obtained the ids by statements like:
     subset(sites, grepl("Auckland", StationName, ignore.case = TRUE))
 and pulling the appropriate StationID by hand.
 
-If `sites` was a regular matrix I could pull out the records pertaining to the stations of interest with `temps[which(temps$StationID %in% cities_ids), ]`. With a big.matrix, the same operation is achieved with `mwhich`, a bigmemory function that performs similar operations to `which` but with quite different syntax.
+If `sites` was a regular matrix I could pull out the records pertaining to the stations of interest with `temps[temps$StationID %in% cities_ids, ]`. With a big.matrix, the same operation is achieved with `mwhich`, a bigmemory function that performs similar operations to `which` but with quite different syntax.
 
     temps_cities <- data.frame(temps[mwhich(temps, cols = rep("StationID", length(cities_ids)), 
       vals = as.list(cities_ids), comp = "eq", op = "OR"), ])
@@ -141,8 +148,9 @@ The usual split-apply-combine strategy works with big.matrices.  The `bigsplit` 
 
 For each index we pull the records for a single site and apply the `summarise_temp` function, then combine the results (again this might take a couple of minutes):
 
-    site_summaries <- do.call(rbind, lapply(site_indices,
-      function(i) summarise_temp(temps[i, c('Date','Temperature'), drop=FALSE])))
+    site_summaries <- rbind.fill(lapply(site_indices,
+      function(i) summarise_temp(temps[i, c('Date','Temperature'),
+      drop=FALSE])))
     site_summaries$StationID <- rownames(site_summaries)
 This summary is most useful when we combine it with the site information:
 
