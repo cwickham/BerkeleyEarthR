@@ -11,7 +11,7 @@ Currently this has been tested on a MacBook Pro, 2.66 GHz Intel Core 2 Duo, 8GB 
 
 ## The data
 
-Currently BerkeleyEarth has released a merged data set of monthly TAVG temperature for 39,028 temperature stations.  Please read README.data in the text data. In particular note that "This release is not recommended for third party research use as the known bugs may lead to erroneous conclusions due to incomplete understanding of the dataset's current limitations."  This code will updated when the second generation is released.
+Currently BerkeleyEarth has released a merged data set of **deseasonalised** monthly TAVG temperature for 39,028 temperature stations.  Please read README.data in the text data. In particular note that "This release is not recommended for third party research use as the known bugs may lead to erroneous conclusions due to incomplete understanding of the dataset's current limitations."  This code will updated when the second generation is released.
 
 The complete unzipped data is 21Gb.  Most of this is due to the source and flags files. The instructions here do not utilize these files.  
 
@@ -123,6 +123,7 @@ Let's join the temperature records up with their site data and plot their temper
 
 Some things to note:
 
+* These temperatures have been deseasonalised, raw data will be released soon.
 * Beware the data gaps! Here, subsequent time points are joined with a line, one should break the lines when a month is missing data.  
 * I haven't read in the flags so I don't know if some of this data has been marked as bad/suspect.
 * You might have noticed earlier (`subset(sites, StationID %in% cities_ids)`) that the Berkeley and Corvallis sites have relocations.  I should also break the data at these times. 
